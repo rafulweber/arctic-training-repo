@@ -22,6 +22,42 @@ head(catch_df)
 ```
 
 
-c'mon man
+```{r}
+catch_df <- catch_df %>% 
+  select(-All, -notesRegCode)
 
+head(catch_df)
+
+```
+
+Move from wide to long format (using gather) and rename the catch column to reflect units
+
+
+```{r}
+catch_df <- catch_df %>% 
+  gather(key = "species", value = "catch", -Region, -Year) %>% 
+  rename(catch_thousands = catch)
+
+unique(catch_df$species)
+```
+
+```{r}
+catch_integers <- as.integer(catch_df$catch_thousands)
+
+i <- which(is.na(catch_integers) == T)
+
+catch_df$catch_thousands[i]
+
+```
+
+
+
+```{r}
+catch_df <- catch_df %>%
+  mutate(catch_thousands = ifelse(catch_thousands == "I", 1, catch_thousands)) %>% 
+  mutate(catch_thousands = as.integer(catch_thousands)) %>% 
+  mutate(catch = catch_thousands * 1000)
+
+tail(catch_df)
+```
 

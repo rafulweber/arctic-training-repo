@@ -138,6 +138,43 @@ head(catch_df)</code></pre>
 ## 4    SSE 1889       0     182   11   92    0 285             
 ## 5    SSE 1890       0     251   42    0    0 292             
 ## 6    SSE 1891       0     274   24    0    0 298</code></pre>
+<pre class="r"><code>catch_df &lt;- catch_df %&gt;% 
+  select(-All, -notesRegCode)
+
+head(catch_df)</code></pre>
+<pre><code>##   Region Year Chinook Sockeye Coho Pink Chum
+## 1    SSE 1886       0       5    0    0    0
+## 2    SSE 1887       0     155    0    0    0
+## 3    SSE 1888       0     224   16    0    0
+## 4    SSE 1889       0     182   11   92    0
+## 5    SSE 1890       0     251   42    0    0
+## 6    SSE 1891       0     274   24    0    0</code></pre>
+<p>Move from wide to long format (using gather) and rename the catch column to reflect units</p>
+<pre class="r"><code>catch_df &lt;- catch_df %&gt;% 
+  gather(key = &quot;species&quot;, value = &quot;catch&quot;, -Region, -Year) %&gt;% 
+  rename(catch_thousands = catch)
+
+unique(catch_df$species)</code></pre>
+<pre><code>## [1] &quot;Chinook&quot; &quot;Sockeye&quot; &quot;Coho&quot;    &quot;Pink&quot;    &quot;Chum&quot;</code></pre>
+<pre class="r"><code>catch_integers &lt;- as.integer(catch_df$catch_thousands)</code></pre>
+<pre><code>## Warning: NAs introduced by coercion</code></pre>
+<pre class="r"><code>i &lt;- which(is.na(catch_integers) == T)
+
+catch_df$catch_thousands[i]</code></pre>
+<pre><code>## [1] &quot;I&quot;</code></pre>
+<pre class="r"><code>catch_df &lt;- catch_df %&gt;%
+  mutate(catch_thousands = ifelse(catch_thousands == &quot;I&quot;, 1, catch_thousands)) %&gt;% 
+  mutate(catch_thousands = as.integer(catch_thousands)) %&gt;% 
+  mutate(catch = catch_thousands * 1000)
+
+tail(catch_df)</code></pre>
+<pre><code>##      Region Year species catch_thousands  catch
+## 8535    NOP 1992    Chum             342 342000
+## 8536    NOP 1993    Chum             135 135000
+## 8537    NOP 1994    Chum              84  84000
+## 8538    NOP 1995    Chum              99  99000
+## 8539    NOP 1996    Chum              68  68000
+## 8540    NOP 1997    Chum              97  97000</code></pre>
 
 
 
